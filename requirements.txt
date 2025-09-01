@@ -1,0 +1,22 @@
+# Core Data Handling
+pandas
+numpy
+
+# H2O AutoML
+h2o
+
+# Synthetic Data & Imbalance Handling
+imbalanced-learn
+scikit-learn
+
+# Visualization
+matplotlib
+seaborn
+plotly
+
+# Clustering / Latent Analysis
+scipy
+scikit-learn-extra  # Optional, for DBSCAN variants or advanced clustering
+
+# Optional: progress bars / utility
+tqdm
