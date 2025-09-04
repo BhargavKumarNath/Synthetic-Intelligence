@@ -10,7 +10,7 @@ By benchmarking multiple strategies across different scales, the project aims to
 - How do different generation methods compare in terms of scalability, performance, and resource efficiency?  
 - What trade-offs exist between `synthetic`, `oversampled`, and `original` datasets?  
 
-This project systematically evaluates the impact of different data generation strategies on model performance, robustness, data quality, and algorithmic scalability. We compare models trained on four distinct datasets:
+This project systematically evaluates the impact of different data generation strategies on model performance, robustness, data quality, and algorithmic scalability. I compare models trained on four distinct datasets:
 
 - A perfectly balanced dataset (theoretical benchmark).
 - A realistically imbalanced dataset (the problem).
@@ -22,7 +22,7 @@ The analysis culminates in a rigous head to head comparison, not just on predict
 ## 2. Motivation: Why This Project Matters
 Class imbalance is a persistent and challenging problem in real world machine learning applications, from fraud detection to medical diagnosis. While simple oversampling techniques like `SMOTE` are common, they often fail on complex datasets where the underlying data distribution is naunced.
 
-This project was motivated by the need to answer a deeper question: **Can we learn the underlying patterns of a minority class from imbalanced data and use that knowledge to generate high-quality, realistic** `synthetic samples` **that lead to more robust and generalisable models?**
+This project was motivated by the need to answer a deeper question: **Can I learn the underlying patterns of a minority class from imbalanced data and use that knowledge to generate high-quality, realistic** `synthetic samples` **that lead to more robust and generalisable models?**
 
 This work stands at the intersection of `Machine Learning`, `Data Structures & Algorithms (DSA)`, and `Systems Design`, demonstrating a holistic approach to solving a data centric problem with an engineering mindset.
 
