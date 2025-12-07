@@ -35,11 +35,60 @@ A custom, complex tabular dataset was synthetically generated to provide a chall
 | `Imbalanced`         | ~70,000    | 40 (30 Num, 10 Cat)  | ~92% / 8%     | Simulate a realistic, challenging production scenario.                  |
 | `Synthetic Datasets` | ~300,000+  | 40 (30 Num, 10 Cat)  | ~50% / 50%    | Provide a balanced, rich training set for the final models.             |
 
+# System Design
+![System Design](system_design.svg)
+
+The architecture is divided into 3 logical phases: **Ingestion, Experimentation (The Core), and Evaluation**.
+
+### Phase 1: Data Ingestion & Strict Isolation
+The main goal is to establish a pristine experimental environment that eliminates data leakage and mimics real world deployment conditions.
+
+- **Raw Data Ingestion & Strict Isolation:** We begin with a raw, highly imbalanced tabular dataset $(92\%\ \text{Majority} \,/\, 8\%\ \text{Minority})$. This simulates the "fraud detection" or "rare disease" scenarios typical in industry.
+- **Stratified Splitting Strategy:**
+  - **Training Set:** The working bench for all models.
+  - **Holdout Test Set:** A classic "unseen" set from the same distribution, used for standard performance metrics.
+  - **"New World" Dataset:** A distinct dataset generated with shifted distribution parameters. This is critical for testing Concep Drift. We don't just want to know if the model learned this data, we want to know if it learned the underlying physics of the problem.
+
+### Phase 2: The Three Experimental Pathways (Swimlanes)
+This is the core of our research. We run three parallel pipelines to isolate variables and prove the hypothesis.
+
+### Path A: The Naive Baseline (Control Group)
+- **Mechanism:** We train a high-performance H2O AutoML model directly on the raw, imbalanced data.
+- **Purpose:** This esstablishes the "floor". It reveals the bias inherent in the data. Typically, this model achieves high accuracy but poor recall, effectively ignoring the minority class ("The Numb Model").
+
+### Path B: Classical SMOTE (The Industry Standard)
+- **Mechanism:** We apply **Synthetic Minority Over-sampling Technique (SMOTE)**. This uses k-Nearest Neighbours (k-NN) to interpolate between minority samples.
+- **Engineering Critique:** While standard, this method is "blind". It assumes that any point between two minority samples is valid. In complex manifolds, this assumption fails, creating noise in the "No-Man's-Land" beween clusters.
+- **Computational Cost:** Being k-NN based, this has a time complexity of **$O(NlogN)$**, making it expensive to scale.
+
+### Path C: The Model-Driven Architecture (The Innovation)
+This is the production-grade solution designed to solve to "blindness" of SMOTE. It operates as a **Rejection Sampling** pipeline:
+1. **The Oracle (Learned Decision Boundary):** Instead of relying on geometric proximity (like SMOTE), we first train an "Oracle" model (H2O Leader) on the original data to learn the complex, non-linear decision boundary of the minority class.
+2. **Candidate Generation:** We use a lightweight, vectorized interpolation engine to generate millions of potential synthetic points.
+3. The Quality Gate (Inference Filter): This is the architectural differentiator. Every candidate is passed through the Oracle.
+    - *If Oracle Confidence < Threshold*: The sample is **Discarded** as noise.
+    - *If Oracle Confidence > Threshold*: The sample is **Accepted**.
+    - *Result*: We only retain samples that mathematically conform to the manifold of the minority class.
+4. **Champion Training:** We train the "Champion Model" on this high-fidelity, curated dataset.
+5. **Efficiency:** This pipeline scales **Linearly O(N)**, making it "embarrassingly parallel" and suitable for distributed systems like Spark.  
+
+### Phase 3: The Comprehensive Evaluation Suite
+We do not rely on simple F1-scores, which can be misleading. We employ a multi-dimensional validation strategy.
+1. **Data Quality QA (The Visual Proof)**
+  - **Latent Space Projection:** We train a **PyTorch Autoencoder** to compress the high-dimensional data into a latent representation.
+  - **t-SNE Visualisation:** We project these embeddings into 2D
+    - *Pass Criteria*: The synthetic data should strictly overlap with the real minority clusters.
+    - *Fail Criteria*: The synthetic data appears as a diffuse cloud between clusters (which is exactly what we observed with SMOTE).
+
+2. **Performance & Robustness (Stress Testing)**
+  - **Robustness Engine:** We inject random noise into the test features. A "sophisticated" model (Path C) should show a specific sensitivity profile, indicating it uses nuanced features, whereas a "numb" model (Path A) often barely reacts because it learned almost nothing.
+  - **Generalization Test**: We evaluate the models on the New World dataset. This is the ultimate test of utility, did the synthetic data help the model learn generalizable rules? Our results showed Path C achieved the highest generalization score (AUPRC $0.103$).
+
 ## 4. Project Phases & methodology
 This project was executed in a series of logical phases, where the insights from each step directly motivated the next.
 
 ## Phase 1 & 2: Baseline and the Failure of Classical Methods
-- **Goal:** Quantify the problem and test the standard industry solution.
+- **Objective:** Quantify the problem and test the standard industry solution.
 - **Actions:**
     1. An `H2O AutoML` model was trained on the `Balanced` data, achieving a standard `AUPRC` of `0.963`.
     2. The same model trained on the `imbalanced` data saw its `AUPRC` collapse to `0.741`, demonstrating the severity of the problem. This model also produced brittle, untrustworthy metrics (`100% precision/recall`).
@@ -47,7 +96,7 @@ This project was executed in a series of logical phases, where the insights from
 - **Key insight:** Training on the `SMOTE` augmented data **failed to improve performance** (`AUPRC: 0.734`). This proved that for complex data, naive geometric oversampling is insufficient and can be detrimental.
 
 ## Phase 3 & 4: A Novel Model Driven Solution
-- **Goal:** Develop a more intelligent `synthetic data` generation technique.
+- **Objective:** Develop a more intelligent `synthetic data` generation technique.
 - **Actions:**
     1. A high performing model (`H2O AutoML Leader`) was trained on the imbalanced data to learn its underlying patterns.
     2. A batch optimised pipeline was engineered to generate millions of candidate samples by interpolating between real minority points.
@@ -55,7 +104,7 @@ This project was executed in a series of logical phases, where the insights from
 - **Key insight:** The final model trained on this new, rich dataset produced more realistic and trustworthy performance metrics, suggesting it had learned a more nuanced and generalisable decision boundary.
 
 ## Phase 5. Visualising Data Quality with Latent Space Analysis
-- **Goal:** Create definitive, visual proof of our `synthetic data's` quality.
+- **Objective:** Create definitive, visual proof of our `synthetic data's` quality.
 - **Actions:**
     1. A `PyTorch Autoencoder` was trained to project the high dimensional data into a 2D latent space.
     2. Original, `SMOTE`, and Model Driven `synthetic data` points were projected and visualised using `t-SNE`.
@@ -68,7 +117,7 @@ This project was executed in a series of logical phases, where the insights from
 </figure>
 
 ## Phase 6 & 7: Algorithms Alternatives and Robustness Testing
-- **Goal:** Explore other generation methods and test the real world robustness of our models.
+- **Objective:** Explore other generation methods and test the real world robustness of our models.
 - **Actions:**
     1. A graph based generation methods and test the real world robustness of our models.
     2. The champion models (`imbalanced`, `SMOTE`, `ModelDriven`) were evaluated on a "perturbed" test set where random noise was added to simulate data drift.
@@ -96,8 +145,8 @@ The following table consolidated performance, robustness, and data quality compa
 
 - **Key Insight:** This comparative analysis crystallized the project's core finding: The superiority of the Model-Driven approach is not based on a single metric but on its **balanced excellence across multiple, often competing, axes**. It framed the final narrative around the trade offs between simplistic robustness, data realism, and model sophistication.  
 
-## Phase 9: The Ultimate Test of Generalisation
-- **Goal:** Evaluate the models on a completely new, unseen dataset to difinitively test generalisation.
+## Phase 9: The final Test of Generalisation
+- **Objective:** Evaluate the models on a completely new, unseen dataset to difinitively test generalisation.
 
 - **Actions:**
     1. A `New World` holdout dataset was generated with a new random seed and slightly shifted distribution parameters to simulate concept drift.
@@ -115,7 +164,7 @@ The following table consolidated performance, robustness, and data quality compa
 
 ## Phase 10: Algorithmic Efficiency & Scalability Analysis
 
-- **Goal:** Assess the production readiness of each synthetic data generation method from an engineering perspective.
+- **Objective:** Assess the production readiness of each synthetic data generation method from an engineering perspective.
 
 - **Actions:**
     1. Conducted a **theoretical complexity analysis**, concluding that k-NN based methods (`SMOTE`, `Graph-Based`) are super-linear (`O(N log N)`), while the Model-Driven approach scales linearly (`O(N)`).
@@ -151,19 +200,6 @@ The following table shows **runtime and memory usage benchmarks** for different 
 - **Data Balancing:** `imbalanced-learn` (for SMOTE)
 - **Algorithmic Analysis:** `memory-profiler, faiss` (Facebook AI Similarity Search)
 - **Environment:** Jupyter Notebooks
-
-## 7. Project Structure
-```
-synthetic-data-generation/
-├── data/
-│   ├── 01_raw/          # Original balanced and imbalanced datasets
-│   ├── 02_processed/    # SMOTE, Graph-Driven, and Model-Driven datasets
-│   └── 03_holdout/      # The final "New World" generalization test set
-├── notebooks/           # All 10 phases of experimental work and analysis
-├── models/              # Saved H2O model objects for reproducibility
-├── plots/               # Key visualizations generated during the project
-└── README.md
-```
 
 ## 8. Conclusion
 This project successfully demonstrated that for complex tabular data, a **model driven approach to synthetic data generation is unequivocally superior** to traditional methods like SMOTE. it delivers a model with the highest **generalisation performance**, is build upon a foundation of provably **higher quality data**, and is supported by an **algorithmically efficient and scalable** design.
