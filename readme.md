@@ -29,6 +29,9 @@ This project systematically evaluates the impact of different data generation st
 
 The analysis culminates in a rigous head to head comparison, not just on predictive accuracy, but on the engineering critical axes of `algorithmic efficiency` and `production readiness`.
 
+[![Live Demo](https://img.shields.io/badge/Live-Dashboard-brightgreen?style=for-the-badge)](https://synthetic-intelligence.streamlit.app)
+
+
 ## 2. Motivation: Why This Project Matters
 Class imbalance is a persistent and challenging problem in real world machine learning applications, from fraud detection to medical diagnosis. While simple oversampling techniques like `SMOTE` are common, they often fail on complex datasets where the underlying data distribution is naunced.
 
