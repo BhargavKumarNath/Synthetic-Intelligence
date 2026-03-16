@@ -20,3 +20,7 @@ scikit-learn-extra  # Optional, for DBSCAN variants or advanced clustering
 
 # Optional: progress bars / utility
 tqdm
+
+# Deep Learning & Similarity Search (Missing Dependencies Added)
+torch
+faiss-cpu
