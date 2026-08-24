@@ -111,7 +111,8 @@ if section == "1. Executive Summary":
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("""
+        st.markdown(
+            """
         This project investigates the generation and application of synthetic data for tackling **complex, imbalanced tabular classification**.
         
         Moving beyond traditional `SMOTE`, we engineered a **Model-Driven, Algorithmic Approach** that treats data generation as a **Rejection Sampling** problem using a learned "Oracle".
@@ -120,7 +121,8 @@ if section == "1. Executive Summary":
         * 🚀 **Performance:** Highest Generalization AUPRC (`0.103` vs `0.098` Baseline).
         * 💎 **Quality:** Synthetic data respects the data manifold (verified via Autoencoder Latent Space).
         * ⚡ **Scalability:** `O(N)` linear time complexity vs `O(N log N)` for SMOTE.
-        """)
+        """
+        )
 
     with col2:
         st.markdown("### 🏆 Final Scorecard")
@@ -224,7 +226,8 @@ elif section == "2. Problem Statement (EDA)":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("""
+        st.markdown(
+            """
         We begin with a rigorous EDA of the `Original Imbalanced` dataset.
         Real-world tabular data (e.g., fraud, rare disease) often exhibits extreme class imbalance.
         
@@ -232,7 +235,8 @@ elif section == "2. Problem Statement (EDA)":
         * **Rows:** ~70,000
         * **Features:** 40 (30 Numerical, 10 Categorical)
         * **Imbalance Ratio:** 92% Majority / 8% Minority
-        """)
+        """
+        )
 
         # Reproducing the class balance finding
         df_chart = pd.DataFrame(
@@ -249,13 +253,15 @@ elif section == "2. Problem Statement (EDA)":
 
     with col2:
         st.markdown("### The Baseline Failure ('The Numb Model')")
-        st.markdown("""
+        st.markdown(
+            """
         We trained an H2O AutoML model on this raw data.
         
         * **Accuracy:** 96.6% (Misleading!)
         * **Recall:** 0.0% (Often ignores minority entirely)
         * **Diagnosis:** The model learns a trivial function: *"Predict Majority Always"*.
-        """)
+        """
+        )
 
         st.markdown(
             '<div class="insight-box">💡 <b>Engineering Insight:</b><br>High accuracy in imbalanced datasets is a vanity metric. We must optimize for <b>AUPRC (Area Under Precision-Recall Curve)</b> to capture the trade-off between detecting the minority class and avoiding false alarms.</div>',
@@ -282,9 +288,11 @@ elif section == "3. The Innovation (Model-Driven)":
         unsafe_allow_html=True,
     )
 
-    st.markdown("""
+    st.markdown(
+        """
     Instead of using geometric proximity (like SMOTE), which is "blind" to the true data manifold, we treat data generation as a **Rejection Sampling** pipeline.
-    """)
+    """
+    )
 
     tabs = st.tabs(["The Logic", "The Code", "Visual Comparison"])
 
@@ -304,12 +312,14 @@ elif section == "3. The Innovation (Model-Driven)":
         with col2:
             st.markdown("#### 3. The Quality Gate (Inference Filter)")
             st.warning("Every candidate is passed through the Oracle.")
-            st.latex(r"""
+            st.latex(
+                r"""
             \text{Action} = \begin{cases} 
             \text{Accept} & \text{if } P(\text{Minority}|\text{Candidate}) > \text{Threshold} \\
             \text{Reject} & \text{otherwise}
             \end{cases}
-            """)
+            """
+            )
 
             st.markdown("#### 4. Result")
             st.success(
@@ -376,10 +386,12 @@ elif section == "4. Latent Space Analysis":
         unsafe_allow_html=True,
     )
 
-    st.markdown("""
+    st.markdown(
+        """
     How do we prove the synthetic data is "good"? We cannot trust F1-score alone. 
     We trained a **PyTorch Autoencoder** to compress the high-dimensional data (40 features) into a latent space (8 dimensions) and visualized it using **t-SNE**.
-    """)
+    """
+    )
 
     col1, col2 = st.columns([1, 2])
 
@@ -530,11 +542,13 @@ elif section == "6. Engineering: Scalability":
         unsafe_allow_html=True,
     )
 
-    st.markdown("""
+    st.markdown(
+        """
     As Principal Engineers, we care about **Time Complexity**. 
     SMOTE relies on k-Nearest Neighbors (k-NN), which is expensive at scale.
     Our Model-Driven approach relies on Inference, which scales Linearly.
-    """)
+    """
+    )
 
     col1, col2 = st.columns(2)
 
