@@ -24,14 +24,28 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
         
-    - name: Check formatting with black
+    - name: Lint and Format
       run: |
         black --check .
-        
-    - name: Lint with ruff
-      run: |
         ruff check .
-        
-    - name: Test with pytest
+
+    - name: Type Checking (mypy)
+      run: |
+        mypy src/
+
+    - name: Security Scan (bandit)
+      run: |
+        bandit -r src/
+
+    - name: Dependency Vulnerability Scan (pip-audit)
+      run: |
+        pip-audit
+
+    - name: Unit Tests
       run: |
         pytest tests/
+
+    - name: Smoke Tests
+      run: |
+        python smoke_test_phase_1.py
+        python smoke_test_phase_2.py

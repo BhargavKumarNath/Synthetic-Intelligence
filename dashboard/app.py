@@ -1,9 +1,9 @@
-import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from sklearn.datasets import make_classification, make_blobs
+import streamlit as st
+from sklearn.datasets import make_blobs, make_classification
 
 # Page Configuration
 st.set_page_config(
