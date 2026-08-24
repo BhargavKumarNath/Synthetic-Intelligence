@@ -7,45 +7,94 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  lint_and_format:
+    name: Lint & Formatting
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
         cache: 'pip'
-        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black ruff
+    - name: Check formatting with black
+      run: black --check .
+    - name: Lint with ruff
+      run: ruff check .
+
+  type_check:
+    name: Type Checking
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-        
-    - name: Lint and Format
-      run: |
-        black --check .
-        ruff check .
+    - name: Run mypy
+      run: mypy src/
 
-    - name: Type Checking (mypy)
+  security_scan:
+    name: Security & Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    - name: Install dependencies
       run: |
-        mypy src/
+        python -m pip install --upgrade pip
+        pip install bandit pip-audit
+    - name: Run Bandit
+      run: bandit -r src/
+    - name: Run pip-audit
+      run: pip-audit
 
-    - name: Security Scan (bandit)
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    - name: Install dependencies
       run: |
-        bandit -r src/
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    - name: Run pytest
+      run: pytest tests/
 
-    - name: Dependency Vulnerability Scan (pip-audit)
+  smoke_tests:
+    name: Smoke Tests
+    needs: [lint_and_format, type_check, security_scan, unit_tests]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    - name: Install dependencies
       run: |
-        pip-audit
-
-    - name: Unit Tests
-      run: |
-        pytest tests/
-
-    - name: Smoke Tests
-      run: |
-        python smoke_test_phase_1.py
-        python smoke_test_phase_2.py
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    - name: Run Phase 1 Smoke Test
+      run: python smoke_test_phase_1.py
+    - name: Run Phase 2 Smoke Test
+      run: python smoke_test_phase_2.py
