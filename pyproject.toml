@@ -57,13 +57,6 @@ extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
 ignore = [
-    "BLE001",
-    "RUF059",
-]
-extend-exclude = ["notebooks"]
-
-[tool.ruff.lint]
-ignore = [
     "BLE001", # Do not catch blind exception (too strict for H2O/third-party initialization)
     "RUF059", # Unpacked variable is never used (common when returning multiple values like distances, indices)
 ]
