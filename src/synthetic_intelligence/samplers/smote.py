@@ -1,5 +1,11 @@
+from __future__ import annotations
+
+import logging
+
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+
+logger = logging.getLogger(__name__)
 
 
 class SmoteSampler:

@@ -354,7 +354,7 @@ while len(synthetic_samples) < TARGET_N:
                 y0=1,
                 x1=5,
                 y1=5,
-                line=dict(color="orange", width=2, dash="dash"),
+                line={"color": "orange", "width": 2, "dash": "dash"},
             )
             st.plotly_chart(fig, width="stretch")
 
@@ -429,7 +429,7 @@ class Autoencoder(nn.Module):
                 y=X_real[:, 1],
                 mode="markers",
                 name="Real Minority",
-                marker=dict(color="blue", opacity=0.5),
+                marker={"color": "blue", "opacity": 0.5},
             )
         )
         fig.add_trace(
@@ -438,7 +438,7 @@ class Autoencoder(nn.Module):
                 y=X_smote[:, 1],
                 mode="markers",
                 name="SMOTE (Noise)",
-                marker=dict(color="orange", symbol="x"),
+                marker={"color": "orange", "symbol": "x"},
             )
         )
         fig.add_trace(
@@ -447,7 +447,7 @@ class Autoencoder(nn.Module):
                 y=X_md[:, 1],
                 mode="markers",
                 name="Model-Driven (Quality)",
-                marker=dict(color="green", size=3),
+                marker={"color": "green", "size": 3},
             )
         )
 
