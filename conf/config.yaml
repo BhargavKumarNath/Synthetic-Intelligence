@@ -1,0 +1,26 @@
+data:
+  raw_dir: "data/01_raw"
+  processed_dir: "data/02_processed"
+  holdout_dir: "data/03_holdout"
+  raw_file: "original_imbalanced.csv"
+  processed_file: "processed.csv"
+  holdout_file: "new_world_holdout.csv"
+
+generation:
+  n_samples: 100000
+  n_features: 40
+  n_informative: 20
+  n_redundant: 10
+  n_categorical: 10
+  class_sep: 0.8
+  flip_y: 0.05
+  random_state: 42
+  new_world_random_state: 88
+  holdout_samples: 20000
+  imbalance_ratio: 0.05
+
+model:
+  models_dir: "models"
+
+training:
+  random_state: 42
