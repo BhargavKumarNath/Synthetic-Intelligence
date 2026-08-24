@@ -116,7 +116,7 @@ class OracleSampler:
         predictors = df_minority.columns.tolist()
 
         np.random.seed(self.random_state)
-        synthetic_samples = []
+        synthetic_samples: list[dict] = []
         total_attempts = 0
 
         logger.info(
@@ -142,6 +142,8 @@ class OracleSampler:
 
             try:
                 batch_hf = h2o.H2OFrame(batch_df)
+                if self.oracle_model is None:
+                    raise ValueError("Oracle model not loaded.")
                 batch_predictions = self.oracle_model.predict(batch_hf)
                 batch_predictions_df = batch_predictions.as_data_frame()
 
